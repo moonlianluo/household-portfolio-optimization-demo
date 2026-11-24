@@ -1,106 +1,108 @@
-# Household Portfolio Coordination — Synthetic Research Demo
+# Household Portfolio Research Engine
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A compact, reproducible demonstration of a household portfolio question:
+A reusable simulation and path-dashboard engine for comparing household-level
+portfolio strategies across taxable and tax-deferred accounts.
 
-> Can coordinating asset location across taxable and tax-deferred accounts
-> improve after-tax outcomes without changing the household's total risk mix?
+This repository provides **research infrastructure, not a portfolio product**.
+It intentionally excludes capital-market assumptions, optimized weights, client
+data, production configurations, and the optimization process used to create
+portfolio points. Researchers bring their own authorized inputs through a
+documented file contract.
 
-This public project uses **fictional assets, synthetic capital-market assumptions,
-and simplified tax mechanics**. It was independently reconstructed for education
-and portfolio demonstration. It contains no employer code, client data, production
-parameters, proprietary portfolio weights, or confidential research results.
-
-## Why household-level coordination matters
-
-Two accounts can each look reasonable in isolation while being inefficient when
-viewed as one household. The baseline in this demo repeats the same allocation in
-both accounts. The coordinated strategy keeps the same combined 60/30/10 exposure
-but places more of the tax-inefficient income sleeve in the tax-deferred account.
+## Research workflow
 
 ```text
-                         One household objective
-                                  |
-                    +-------------+-------------+
-                    |                           |
-          Tax-deferred account           Taxable account
-          more income exposure       more growth exposure
-                    |                           |
-                    +-------------+-------------+
-                                  |
-                      same total risk allocation
+private research inputs
+  ├─ asset assumptions
+  ├─ correlation matrix
+  ├─ strategy/account weights
+  └─ simulation assumptions
+              │
+              ▼
+       validation layer
+              │
+              ▼
+    paired Monte Carlo engine
+              │
+       ┌──────┴────────┐
+       ▼               ▼
+ summary tables   path dashboard
 ```
 
-## What the demo does
+## What is public
 
-- Generates paired, correlated annual return paths for three fictional assets.
-- Compares a repeated-allocation baseline with coordinated asset location.
-- Applies a transparent, simplified annual tax-drag assumption to the taxable account.
-- Reports terminal-wealth percentiles and cumulative modeled tax drag.
-- Produces a reproducible wealth-path chart and CSV summaries.
+- Strict input validation and alignment checks
+- Paired multivariate Monte Carlo simulation
+- Annual account-level rebalancing
+- Transparent taxable-account drag overlay
+- Terminal distribution summaries and run manifest
+- Standalone interactive HTML path dashboard
+- Reproducibility and reporting tests
 
-The paired design means both strategies experience the same simulated market path;
-only account placement differs.
+## What is deliberately not public
 
-## Repository structure
+- Institutional or employer data
+- Actual optimized portfolio points
+- Expected-return, volatility, correlation, or tax assumptions
+- Optimization objectives, constraints, solver configuration, or production code
+- Client information and historical research outputs
+
+The engine can consume precomputed optimization points, but it neither contains
+nor reconstructs the process used to produce them.
+
+## Input contract
+
+Prepare a private directory containing:
 
 ```text
-src/simulation.py          Monte Carlo engine and reporting
-tests/test_simulation.py   Reproducibility and allocation checks
-outputs/                   Generated charts and tables (ignored by Git)
+assumptions.json
+assets.csv
+correlations.csv
+portfolios.csv
 ```
 
-## Run locally
+See [the full input contract](docs/input-contract.md). No example input bundle is
+committed, so cloning the repository does not provide recommendations or
+institutional research assumptions.
+
+## Run a research bundle
 
 ```bash
 python -m venv .venv
-```
-
-Activate the environment, then run:
-
-```bash
 python -m pip install -r requirements.txt
-python -m src.simulation
+python -m src.simulation --input-dir /path/to/private-inputs --output outputs
 ```
 
-For a faster smoke test:
+Outputs include `summary.csv`, `wealth_quantiles.csv`, `run_manifest.csv`,
+and a standalone `path_dashboard.html`.
 
-```bash
-python -m src.simulation --years 10 --simulations 500
-```
+## Validate the engine
 
-Generated files:
-
-- `outputs/summary.csv`
-- `outputs/wealth_quantiles.csv`
-- `outputs/wealth_paths.png`
-
-Run tests with:
+Tests create a temporary synthetic bundle at runtime; the fixture never becomes
+a repository input dataset.
 
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m pytest
 ```
 
-## Interpretation boundaries
+## Modeling boundaries
 
-This is a framework demonstration, not an empirical claim that one strategy will
-outperform another. The result is mechanically influenced by the fictional return,
-volatility, correlation, allocation, and tax-drag assumptions in the source code.
-Real household planning would require jurisdiction-specific tax rules, transaction
-costs, withdrawals, rebalancing constraints, tax lots, required distributions,
-and suitability review.
+The public engine uses arithmetic annual assumptions, long-only weights, annual
+rebalancing, and a simplified asset-level tax-drag overlay. It does not model
+tax lots, transaction costs, withdrawals, required distributions, wash-sale
+rules, jurisdiction-specific taxes, or investment suitability. Those omissions
+are explicit extension points rather than implied production readiness.
 
 ## Privacy and provenance
 
-This repository is intentionally separate from the private research project that
-inspired the general question. Names, datasets, optimization grids, internal
-documents, real outputs, and implementation details from that work are excluded.
-The public code is a clean-room educational example built from general portfolio
-construction concepts.
+This is a clean-room public implementation of a general household research
+workflow. It does not copy private inputs, optimized points, internal documents,
+production results, or confidential optimization logic.
 
 ## License
 
-[MIT](LICENSE). The software is provided for educational purposes without warranty.
+[MIT](LICENSE). Educational and research use only; no investment or tax advice.
