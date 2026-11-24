@@ -80,7 +80,7 @@ Generated files:
 Run tests with:
 
 ```bash
-python -m pip install pytest
+python -m pip install -r requirements-dev.txt
 python -m pytest
 ```
 
